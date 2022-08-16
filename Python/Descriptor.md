@@ -294,6 +294,42 @@ MyClass.method(instance)
 - __get\_\_ 메서드는 함수를 메서드로 변환한다.
 - 즉, 함수를 작업하려는 객체의 인스턴스에 바인딩 한다.
 
+예시:
+```python
+from types import MethodType
+
+class Method:
+    def __init__(self, name):
+        self._name = name
+        
+    def __call__(self, instance, arg1, arg2):
+       print(f"{self._name}: {instance} 호출됨. 인자는 {arg1}, {arg2}") 
+
+class MyClass:
+    method = Method("MyClassMethod")
+
+instance = MyClass()
+method = Method("taehun")
+method(instance, 1, 2)
+
+MyClass.method(instance, 1, 2)
+instance.method(instance, 1, 2) #instance를 따로 넘겨주는 구현이 없기 때문에, instance를 넘겨주지 않으면 오류 발생
+
+instance.method = MethodType(instance.method, instance)
+instance.method(1,2) #method를 instance에 바인딩하여 method의 인자로 instance가 넘어가게 함
+
+
+def __get__(self, instance, owner):
+    if instance is None:
+        return self
+    return MethodType(self, instance)
+
+setattr(Method, '__get__', __get__) #Method class에 __get__ 구현하여 method 호출시 instance에 바인딩
+
+instance = MyClass()
+instance.method(1,2)
+```
+
 ### 메서드를 위한 빌트인 데코레이터
 
 - @property, @classmethod, @staticmethod 데코레이터는 모두 디스크립터이다.
